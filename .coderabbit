@@ -1,1 +1,49 @@
 
+version: 1
+
+reviews:
+  auto_review:
+    enabled: true
+    drafts: false
+
+  review_rules:
+    # Focus on infra changes
+    include:
+      - "**/*.tf"
+      - "**/*.tfvars"
+      - "**/*.hcl"
+      - "**/*.rego"
+      - ".buildkite/**"
+      - "modules/**"
+
+    exclude:
+      - "**/.terraform/**"
+      - "**/*.tfstate*"
+      - "**/vendor/**"
+
+  # How chatty CodeRabbit should be
+  tone: concise
+  profile: infrastructure
+
+  # Enforce real infra best practices
+  guidelines:
+    - "Do not define provider blocks inside reusable modules."
+    - "Use for_each with maps instead of count for named resources."
+    - "Avoid hardcoding secrets; use variables or environment-based auth."
+    - "Modules must not contain backend configuration."
+    - "Prefer map(object) inputs for scalable resources."
+
+  # What CodeRabbit should actively look for
+  checks:
+    - name: "Provider hygiene"
+      description: "Ensure providers are declared but not configured inside modules."
+    - name: "Loop safety"
+      description: "Ensure for_each is used instead of count where names matter."
+    - name: "Naming consistency"
+      description: "Check pipeline names follow org conventions (e.g. bk-*)."
+    - name: "Secrets"
+      description: "Detect hardcoded tokens or secrets."
+
+comments:
+  collapse: true
+  severity_labels: true
