@@ -1,0 +1,78 @@
+version: 2
+
+# --------------------------------------------------
+# Global settings
+# --------------------------------------------------
+global:
+  # Fail CI when secrets are detected
+  fail_on_secrets: true
+
+  # Redact secrets in logs
+  redact: true
+
+# --------------------------------------------------
+# Paths to ignore (generated / safe)
+# --------------------------------------------------
+paths:
+  ignore:
+    - ".terraform/**"
+    - "**/.terraform/**"
+    - "**/*.tfstate"
+    - "**/*.tfstate.*"
+    - "**/*.tfplan"
+    - "**/*.tfplan.json"
+    - "vendor/**"
+    - "node_modules/**"
+    - ".git/**"
+
+# --------------------------------------------------
+# File patterns to scan explicitly
+# --------------------------------------------------
+scan:
+  include:
+    - "**/*.tf"
+    - "**/*.tfvars"
+    - "**/*.tfvars.json"
+    - "**/*.hcl"
+    - "**/*.yaml"
+    - "**/*.yml"
+    - "**/*.rego"
+    - ".buildkite/**"
+    - "**/*.md"
+
+# --------------------------------------------------
+# Terraform / OpenTofu tuning
+# --------------------------------------------------
+terraform:
+  # Do not flag obvious variable placeholders
+  allow_variable_references: true
+
+  # Ignore backend configs (no secrets should be here anyway)
+  ignore_backend: true
+
+# --------------------------------------------------
+# Known safe patterns (reduce false positives)
+# --------------------------------------------------
+allowlist:
+  regexes:
+    # Terraform / OpenTofu variables
+    - 'var\.[A-Za-z0-9_]+'
+    - 'local\.[A-Za-z0-9_]+'
+
+    # Buildkite environment variables
+    - 'BUILDKITE_[A-Z0-9_]+'
+
+    # Vault / OIDC / JWT references
+    - 'vault://[A-Za-z0-9_/\-]+'
+    - 'jwt\.[A-Za-z0-9_]+'
+
+    # Example / placeholder tokens
+    - 'example'
+    - 'changeme'
+    - 'REDACTED'
+
+# --------------------------------------------------
+# Output behaviour
+# --------------------------------------------------
+output:
+  format: json
