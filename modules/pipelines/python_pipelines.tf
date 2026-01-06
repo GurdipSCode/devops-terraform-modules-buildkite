@@ -1,6 +1,11 @@
-resource "buildkite_pipeline" "signed-pipeline" {
-  name       = "my-signed-pipeline"
-  repository = local.repository
-  cluster_id = data.buildkite_cluster.default.id
-  steps      = data.buildkite_signed_pipeline_steps.signed-steps.steps
+resource "buildkite_pipeline" "this" {
+  for_each = var.python_pipelines
+
+  name        = each.key
+  repository  = each.value.repository
+  description = each.value.description
+
+  pipeline_file        = each.value.pipeline_file
+  branch_configuration = each.value.branch
+  tags                 = each.value.tags
 }
