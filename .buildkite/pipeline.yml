@@ -67,7 +67,7 @@ steps:
       - label: ":git: Checkout OpenTofu Scripts Repo (pinned + verified)"
         key: "checkout-opentofu-scripts"
         agents:
-          queue: "windows"
+          queue: "OpenTofu"
         command: |
           powershell -ExecutionPolicy Bypass -NoProfile -Command `
             $ErrorActionPreference = 'Stop'; `
@@ -133,26 +133,26 @@ steps:
         key: "terraform-fmt"
         command: "powershell -ExecutionPolicy Bypass -File .buildkite/scripts/validation/Test-TerraformFormat.ps1"
         agents:
-          queue: "windows"
+          queue: "OpenTofu"
 
       - label: ":terraform: Validate Module"
         key: "terraform-validate"
         command: "powershell -ExecutionPolicy Bypass -File .buildkite/scripts/validation/Test-TerraformValidate.ps1"
         agents:
-          queue: "windows"
+          queue: "OpenTofu"
 
       - label: ":lint: TFLint"
         key: "tflint"
         command: "powershell -ExecutionPolicy Bypass -File .buildkite/scripts/validation/Test-TFLint.ps1"
         agents:
-          queue: "windows"
+          queue: "OpenTofu"
         soft_fail: true
 
       - label: ":conventional_commits: Validate Commits"
         key: "validate-commits"
         command: "powershell -ExecutionPolicy Bypass -File .buildkite/scripts/validation/Test-ConventionalCommits.ps1"
         agents:
-          queue: "windows"
+          queue: "OpenTofu"
         soft_fail: true
 
   # ============================================================================
@@ -170,14 +170,14 @@ steps:
         artifact_paths:
           - ".secrets/**/*"
         agents:
-          queue: "windows"
+          queue: "OpenTofu"
 
       - label: ":gitguardian: Secret Scan"
         key: "gitguardian-scan"
         depends_on: "fetch-security-creds"
         command: "powershell -ExecutionPolicy Bypass -File .buildkite/scripts/security/Test-GitGuardian.ps1"
         agents:
-          queue: "windows"
+          queue: "OpenTofu"
 
       - label: ":shield: Trivy Security Scan"
         key: "trivy-scan"
@@ -185,13 +185,13 @@ steps:
         artifact_paths:
           - "trivy-report.json"
         agents:
-          queue: "windows"
+          queue: "OpenTofu"
 
       - label: ":checkov: Checkov Scan"
         key: "checkov-scan"
         command: "powershell -ExecutionPolicy Bypass -File .buildkite/scripts/security/Test-Checkov.ps1"
         agents:
-          queue: "windows"
+          queue: "OpenTofu"
         soft_fail: true
 
   # ============================================================================
@@ -206,14 +206,14 @@ steps:
         key: "validate-examples"
         command: "powershell -ExecutionPolicy Bypass -File .buildkite/scripts/testing/Test-Examples.ps1"
         agents:
-          queue: "windows"
+          queue: "OpenTofu"
 
       - label: ":terraform: Plan Examples"
         key: "plan-examples"
         depends_on: "validate-examples"
         command: "powershell -ExecutionPolicy Bypass -File .buildkite/scripts/testing/New-ExamplePlan.ps1"
         agents:
-          queue: "windows"
+          queue: "OpenTofu"
         soft_fail: true
 
   # ============================================================================
@@ -233,13 +233,13 @@ steps:
           - "modules/*/README.md"
           - "examples/*/README.md"
         agents:
-          queue: "windows"
+          queue: "OpenTofu"
 
       - label: ":mag: terraform-docs output (if missing)"
         key: "terraform-docs-diff"
         depends_on: "terraform-docs"
         agents:
-          queue: "windows"
+          queue: "OpenTofu"
         command: |
           powershell -ExecutionPolicy Bypass -NoProfile -Command `
             $ErrorActionPreference = 'Continue'; `
@@ -276,7 +276,7 @@ steps:
         depends_on: "terraform-docs"
         command: "powershell -ExecutionPolicy Bypass -File .buildkite/scripts/documentation/Test-DocumentationDrift.ps1"
         agents:
-          queue: "windows"
+          queue: "OpenTofu"
         soft_fail: true
 
   # ============================================================================
@@ -294,7 +294,7 @@ steps:
         artifact_paths:
           - "version-bump-type.txt"
         agents:
-          queue: "windows"
+          queue: "OpenTofu"
 
   # ============================================================================
   # PHASE 6: VERSIONING
@@ -310,7 +310,7 @@ steps:
         artifact_paths:
           - "CHANGELOG-PREVIEW.md"
         agents:
-          queue: "windows"
+          queue: "OpenTofu"
 
       - label: ":calculator: Calculate Next Version"
         key: "calculate-version"
@@ -319,7 +319,7 @@ steps:
           - "next-version.txt"
           - "version-type.txt"
         agents:
-          queue: "windows"
+          queue: "OpenTofu"
 
   # ============================================================================
   # PHASE 7: RELEASE
@@ -338,7 +338,7 @@ steps:
     allow_dependency_failure: true
     command: "powershell -ExecutionPolicy Bypass -File .buildkite/scripts/release/New-Release.ps1"
     agents:
-      queue: "windows"
+      queue: "OpenTofu"
 
   # ============================================================================
   # PHASE 8: PUBLISH TO REGISTRY
@@ -348,7 +348,7 @@ steps:
     depends_on: "create-release"
     command: "powershell -ExecutionPolicy Bypass -File .buildkite/scripts/release/Publish-Registry.ps1"
     agents:
-      queue: "windows"
+      queue: "OpenTofu"
 
   # ============================================================================
   # PHASE 9: NOTIFICATIONS
@@ -359,4 +359,4 @@ steps:
     allow_dependency_failure: true
     command: "powershell -ExecutionPolicy Bypass -File .buildkite/scripts/release/Send-Notification.ps1"
     agents:
-      queue: "windows"
+      queue: "OpenTofu"
